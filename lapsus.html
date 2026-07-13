@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAPSUS. — Investigación confidencial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black-lapsus:#080808;
+    --black-deep:#030303;
+    --grey-asphalt:#181818;
+    --grey-file:#292929;
+    --white-bone:#E8E5DF;
+    --grey-text:#9C9C98;
+    --red-lapsus:#6E0F16;
+    --red-active:#8C151D;
+    --red-shadow:#3A080C;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--black-lapsus);
+    color:var(--white-bone);
+    font-family:'Inter',sans-serif;
+    font-weight:300;
+    overflow-x:hidden;
+    cursor:none;
+  }
+
+  @media (pointer:coarse){
+    body{cursor:auto;}
+  }
+
+  ::selection{
+    background:var(--red-lapsus);
+    color:var(--white-bone);
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  .mono{
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+  }
+
+  .display{
+    font-family:'Bebas Neue',sans-serif;
+    font-weight:400;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    line-height:0.85;
+  }
+
+  /* ---------- CURSOR ---------- */
+  .cursor-dot{
+    position:fixed;
+    top:0;left:0;
+    width:6px;height:6px;
+    background:var(--white-bone);
+    border-radius:50%;
+    pointer-events:none;
+    z-index:9999;
+    transform:translate(-50%,-50%);
+    transition:width 250ms ease, height 250ms ease, border 250ms ease, background 250ms ease;
+  }
+  .cursor-dot.hover{
+    width:40px;height:40px;
+    background:transparent;
+    border:1px solid var(--red-lapsus);
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;
+    letter-spacing:0.1em;
+  }
+  @media (pointer:coarse){
+    .cursor-dot{display:none;}
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:1000;
+    padding:28px 48px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:transparent;
+    border-bottom:1px solid transparent;
+    transition:background 400ms ease, border-color 400ms ease, backdrop-filter 400ms ease, padding 400ms ease;
+  }
+  header.scrolled{
+    background:rgba(8,8,8,0.92);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--grey-file);
+    padding:18px 48px;
+  }
+  .logo{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:24px;
+    letter-spacing:0.08em;
+  }
+  .logo .dot{color:var(--red-lapsus);}
+
+  nav ul{
+    list-style:none;
+    display:flex;
+    gap:36px;
+  }
+  nav a{
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--grey-text);
+    position:relative;
+    transition:color 300ms ease;
+  }
+  nav a:hover{color:var(--white-bone);}
+
+  .nav-right{display:flex;align-items:center;gap:40px;}
+
+  .btn{
+    display:inline-block;
+    background:var(--red-lapsus);
+    color:var(--white-bone);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    padding:18px 32px;
+    border-radius:0px;
+    border:none;
+    transition:background 300ms ease, transform 300ms ease;
+    cursor:none;
+  }
+  .btn:hover{
+    background:var(--red-active);
+    transform:translateY(-2px);
+  }
+  .btn-ghost{
+    background:transparent;
+    border:1px solid var(--grey-file);
+    color:var(--white-bone);
+  }
+  .btn-ghost:hover{
+    border-color:var(--red-lapsus);
+    background:transparent;
+  }
+  .btn-small{
+    padding:14px 24px;
+    font-size:11px;
+  }
+
+  @media (max-width:900px){
+    nav ul{display:none;}
+    header{padding:22px 24px;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    height:100vh;
+    min-height:640px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    background:var(--black-deep);
+    overflow:hidden;
+  }
+  .hero-texture{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 75% 30%, rgba(110,15,22,0.10) 0%, transparent 55%),
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    opacity:0.9;
+  }
+  .hero-texture::after{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(90deg, rgba(3,3,3,0.98) 0%, rgba(3,3,3,0.86) 45%, rgba(3,3,3,0.55) 100%);
+  }
+  .hero-grid-lines{
+    position:absolute;
+    right:6%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:var(--grey-file);
+    opacity:0.5;
+  }
+  .hero-content{
+    position:relative;
+    z-index:2;
+    max-width:1100px;
+    padding:0 48px;
+  }
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--red-lapsus);
+    margin-bottom:28px;
+    opacity:0;
+    animation:fadeIn 900ms ease forwards 200ms;
+  }
+  .hero h1{
+    font-size:clamp(48px,9vw,120px);
+    overflow:hidden;
+  }
+  .hero h1 span{
+    display:block;
+    opacity:0;
+    transform:translateY(100%);
+    animation:reveal 900ms cubic-bezier(0.2,0.8,0.2,1) forwards;
+  }
+  .hero h1 span:nth-child(1){animation-delay:400ms;}
+  .hero h1 span:nth-child(2){animation-delay:600ms;}
+  .hero h1 span:nth-child(3){animation-delay:800ms;color:var(--red-lapsus);}
+
+  @keyframes reveal{
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes fadeIn{
+    to{opacity:1;}
+  }
+
+  .hero-sub{
+    margin-top:36px;
+    max-width:480px;
+    font-size:17px;
+    line-height:1.7;
+    color:var(--grey-text);
+    opacity:0;
+    animation:fadeIn 900ms ease forwards 1100ms;
+  }
+  .hero-actions{
+    margin-top:48px;
+    display:flex;
+    align-items:center;
+    gap:36px;
+    opacity:0;
+    animation:fadeIn 900ms ease forwards 1300ms;
+  }
+  .hero-link{
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--white-bone);
+    border-bottom:1px solid var(--grey-file);
+    padding-bottom:4px;
+    transition:border-color 300ms ease;
+  }
+  .hero-link:hover{border-color:var(--red-lapsus);}
+
+  .hero-scroll{
+    position:absolute;
+    bottom:40px;
+    left:48px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.14em;
+    color:var(--grey-text);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    z-index:2;
+  }
+  .hero-scroll .line{
+    width:32px;height:1px;
+    background:var(--grey-file);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-scroll .line::after{
+    content:"";
+    position:absolute;
+    left:-100%;top:0;bottom:0;width:100%;
+    background:var(--red-lapsus);
+    animation:scrollLine 2.4s ease-in-out infinite;
+  }
+  @keyframes scrollLine{
+    0%{left:-100%;}
+    50%{left:0%;}
+    100%{left:100%;}
+  }
+
+  /* ---------- SECTION GENERIC ---------- */
+  section{
+    padding:140px 48px;
+    position:relative;
+  }
+  @media (max-width:900px){
+    section{padding:80px 24px;}
+  }
+  .section-inner{
+    max-width:1200px;
+    margin:0 auto;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    color:var(--red-lapsus);
+    margin-bottom:24px;
+    display:block;
+  }
+  .reveal{
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 900ms cubic-bezier(0.2,0.8,0.2,1), transform 900ms cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .reveal.in{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* ---------- METODO ---------- */
+  .metodo{
+    background:var(--black-lapsus);
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:80px;
+    align-items:start;
+  }
+  .metodo-number{
+    position:absolute;
+    top:60px;
+    right:48px;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:280px;
+    color:var(--white-bone);
+    opacity:0.03;
+    line-height:1;
+    pointer-events:none;
+    user-select:none;
+  }
+  .metodo h2{
+    font-size:clamp(36px,5vw,72px);
+    max-width:520px;
+  }
+  .metodo .col-right{
+    padding-top:12px;
+  }
+  .metodo p{
+    max-width:440px;
+    font-size:16px;
+    line-height:1.7;
+    color:var(--grey-text);
+    margin-bottom:28px;
+  }
+  .metodo p:last-child{margin-bottom:0;}
+  @media (max-width:900px){
+    .metodo{grid-template-columns:1fr;gap:40px;}
+    .metodo-number{display:none;}
+  }
+
+  /* ---------- SERVICIOS ---------- */
+  .servicios{
+    background:var(--black-deep);
+    border-top:1px solid var(--grey-file);
+    border-bottom:1px solid var(--grey-file);
+  }
+  .servicios-head{
+    max-width:620px;
+    margin-bottom:80px;
+  }
+  .servicios-head h2{
+    font-size:clamp(36px,5vw,64px);
+  }
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--grey-file);
+    border:1px solid var(--grey-file);
+  }
+  @media (max-width:1100px){
+    .cards{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:600px){
+    .cards{grid-template-columns:1fr;}
+  }
+  .card{
+    background:#0D0D0D;
+    padding:40px 32px;
+    position:relative;
+    transition:border-color 300ms ease;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+    background:transparent;
+    transition:background 300ms ease;
+  }
+  .card:hover::before{background:var(--red-lapsus);}
+  .card .num{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--red-lapsus);
+    font-size:13px;
+    letter-spacing:0.1em;
+    margin-bottom:32px;
+    display:block;
+  }
+  .card h3{
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:16px;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    margin-bottom:16px;
+    line-height:1.4;
+  }
+  .card p{
+    font-size:14px;
+    line-height:1.7;
+    color:var(--grey-text);
+  }
+
+  /* ---------- CASOS ---------- */
+  .casos-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:64px;
+    flex-wrap:wrap;
+    gap:24px;
+  }
+  .casos-head h2{
+    font-size:clamp(36px,5vw,64px);
+    max-width:600px;
+  }
+  .caso-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.12em;
+    color:var(--grey-text);
+    border:1px solid var(--grey-file);
+    padding:8px 14px;
+  }
+  .caso-card{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr;
+    border:1px solid var(--grey-file);
+    margin-bottom:1px;
+    background:var(--black-lapsus);
+  }
+  .caso-card + .caso-card{margin-top:24px;}
+  @media (max-width:900px){
+    .caso-card{grid-template-columns:1fr;}
+  }
+  .caso-visual{
+    background:
+      linear-gradient(135deg, #111 0%, #050505 60%),
+      repeating-linear-gradient(60deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 4px);
+    min-height:280px;
+    position:relative;
+    display:flex;
+    align-items:flex-end;
+    padding:28px;
+  }
+  .caso-visual .file-id{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--grey-text);
+  }
+  .caso-body{
+    padding:48px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .caso-meta{
+    display:flex;
+    gap:24px;
+    flex-wrap:wrap;
+    margin-bottom:28px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    color:var(--red-lapsus);
+  }
+  .caso-body p{
+    font-size:18px;
+    line-height:1.8;
+    color:var(--white-bone);
+    font-weight:300;
+    margin-bottom:28px;
+    max-width:480px;
+  }
+  .caso-recreacion{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:0.14em;
+    color:var(--grey-text);
+    margin-bottom:20px;
+    display:inline-block;
+    border:1px solid var(--grey-file);
+    padding:6px 10px;
+    width:fit-content;
+  }
+  .caso-link{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--white-bone);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    width:fit-content;
+  }
+  .caso-link::after{
+    content:"→";
+    transition:transform 300ms ease;
+  }
+  .caso-link:hover::after{transform:translateX(4px);}
+
+  /* ---------- PROCESO ---------- */
+  .proceso{
+    background:var(--black-deep);
+    border-top:1px solid var(--grey-file);
+  }
+  .proceso-head{
+    max-width:600px;
+    margin-bottom:80px;
+  }
+  .proceso-head h2{font-size:clamp(36px,5vw,64px);}
+  .steps{
+    display:flex;
+    flex-direction:column;
+  }
+  .step{
+    display:grid;
+    grid-template-columns:80px 1fr 1fr;
+    gap:40px;
+    padding:32px 0;
+    border-top:1px solid var(--grey-file);
+    align-items:center;
+  }
+  .steps .step:last-child{border-bottom:1px solid var(--grey-file);}
+  @media (max-width:800px){
+    .step{grid-template-columns:50px 1fr;}
+    .step .step-desc{grid-column:2;}
+  }
+  .step-num{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--red-lapsus);
+    font-size:13px;
+  }
+  .step-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:28px;
+    letter-spacing:0.03em;
+  }
+  .step-desc{
+    font-size:14px;
+    line-height:1.7;
+    color:var(--grey-text);
+    max-width:420px;
+  }
+
+  /* ---------- CONTACTO ---------- */
+  .contacto{
+    background:var(--black-lapsus);
+    border-top:1px solid var(--grey-file);
+  }
+  .contacto-inner{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:80px;
+  }
+  @media (max-width:900px){
+    .contacto-inner{grid-template-columns:1fr;gap:48px;}
+  }
+  .contacto h2{
+    font-size:clamp(36px,6vw,88px);
+    margin-bottom:28px;
+  }
+  .contacto-left p{
+    font-size:16px;
+    line-height:1.7;
+    color:var(--grey-text);
+    max-width:420px;
+    margin-bottom:36px;
+  }
+  .contacto-note{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    color:var(--grey-text);
+    border-left:1px solid var(--red-lapsus);
+    padding-left:16px;
+    max-width:380px;
+    line-height:1.8;
+  }
+  form{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--grey-file);
+    border:1px solid var(--grey-file);
+  }
+  .field{
+    background:var(--black-deep);
+    padding:20px 24px;
+  }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.12em;
+    color:var(--grey-text);
+    margin-bottom:10px;
+  }
+  .field input,
+  .field textarea{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--white-bone);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    font-weight:300;
+    resize:none;
+  }
+  .field textarea{height:80px;}
+  .field input::placeholder,
+  .field textarea::placeholder{color:#4a4a48;}
+  form .btn{
+    margin-top:1px;
+    width:100%;
+    background:var(--red-lapsus);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    background:var(--black-deep);
+    padding:100px 48px 40px;
+    border-top:1px solid var(--grey-file);
+  }
+  .footer-inner{
+    max-width:1200px;
+    margin:0 auto;
+  }
+  .footer-logo{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(48px,9vw,120px);
+    line-height:0.85;
+    margin-bottom:24px;
+  }
+  .footer-tagline{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.16em;
+    color:var(--grey-text);
+    margin-bottom:80px;
+  }
+  .footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:24px;
+    padding-top:32px;
+    border-top:1px solid var(--grey-file);
+  }
+  .footer-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    color:var(--grey-text);
+    line-height:2;
+  }
+  .footer-links{
+    display:flex;
+    gap:28px;
+  }
+  .footer-links a{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--grey-text);
+    transition:color 300ms ease;
+  }
+  .footer-links a:hover{color:var(--white-bone);}
+
+  h2{color:var(--white-bone);}
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursorDot"></div>
+
+<header id="header">
+  <div class="logo">LAPSUS<span class="dot">.</span></div>
+  <nav>
+    <ul>
+      <li><a href="#hero">Inicio</a></li>
+      <li><a href="#metodo">Nosotros</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#casos">Casos</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+  <div class="nav-right">
+    <a href="#contacto" class="btn btn-small">Caso privado</a>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-texture"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow mono">Lapsus // Confidencial</span>
+    <h1 class="display">
+      <span>Todos</span>
+      <span>Cometen</span>
+      <span>Uno.</span>
+    </h1>
+    <p class="hero-sub">Investigación confidencial y documentación discreta de hechos. No trabajamos con suposiciones — trabajamos con evidencia.</p>
+    <div class="hero-actions">
+      <a href="#contacto" class="btn">Solicitar información</a>
+      <a href="#proceso" class="hero-link">Conocer el proceso →</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Desplazar</span>
+    <span class="line"></span>
+  </div>
+</section>
+
+<section class="metodo" id="metodo">
+  <div class="metodo-number">004</div>
+  <div class="col-left">
+    <span class="eyebrow mono">004 // Método</span>
+    <h2 class="display reveal">No buscamos<br>confirmar sospechas.<br>Documentamos<br><span style="color:var(--red-lapsus)">hechos.</span></h2>
+  </div>
+  <div class="col-right reveal">
+    <p>Cada situación se analiza de manera individual. El proceso se define según las circunstancias y los métodos legalmente procedentes.</p>
+    <p>No partimos de una conclusión. Reunimos lo observable, lo verificable y lo documentado — y lo entregamos con la misma discreción con la que fue solicitado.</p>
+  </div>
+</section>
+
+<section class="servicios" id="servicios">
+  <div class="section-inner">
+    <div class="servicios-head">
+      <span class="eyebrow mono">Alcance // Servicios</span>
+      <h2 class="display reveal">Lo que hacemos<br>no es vigilar.<br>Es <span style="color:var(--red-lapsus)">verificar.</span></h2>
+    </div>
+    <div class="cards">
+      <div class="card reveal">
+        <span class="num mono">01</span>
+        <h3>Documentación de hechos</h3>
+        <p>Registro objetivo y cronológico de eventos observables, sin interpretación ni juicio anticipado.</p>
+      </div>
+      <div class="card reveal">
+        <span class="num mono">02</span>
+        <h3>Análisis de patrones</h3>
+        <p>Identificación de repeticiones y coincidencias a lo largo del tiempo que sostienen una conclusión.</p>
+      </div>
+      <div class="card reveal">
+        <span class="num mono">03</span>
+        <h3>Cronología verificada</h3>
+        <p>Líneas de tiempo construidas con fuentes contrastadas y respaldo documental sólido.</p>
+      </div>
+      <div class="card reveal">
+        <span class="num mono">04</span>
+        <h3>Informe confidencial</h3>
+        <p>Entrega de un expediente claro, discreto y legalmente procedente, sin especulación.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="casos" id="casos">
+  <div class="section-inner">
+    <div class="casos-head">
+      <div>
+        <span class="eyebrow mono">Archivo // Casos</span>
+        <h2 class="display reveal">La primera vez<br>no significó nada.</h2>
+      </div>
+      <span class="caso-tag mono">Recreación narrativa</span>
+    </div>
+
+    <div class="caso-card reveal">
+      <div class="caso-visual">
+        <span class="file-id mono">Archivo // LPS-004</span>
+      </div>
+      <div class="caso-body">
+        <div class="caso-meta">
+          <span>Martes</span>
+          <span>Periodo // 4 semanas</span>
+          <span>Patrón // Repetitivo</span>
+        </div>
+        <span class="caso-recreacion mono">Recreación narrativa</span>
+        <p>La primera vez no significó nada. La segunda fue coincidencia. La tercera llamó la atención.</p>
+        <a href="#" class="caso-link">Leer recreación</a>
+      </div>
+    </div>
+
+    <div class="caso-card reveal">
+      <div class="caso-visual">
+        <span class="file-id mono">Archivo // LPS-003</span>
+      </div>
+      <div class="caso-body">
+        <div class="caso-meta">
+          <span>Viernes</span>
+          <span>Periodo // 9 días</span>
+          <span>Patrón // Inconsistente</span>
+        </div>
+        <span class="caso-recreacion mono">Recreación narrativa</span>
+        <p>Las versiones cambiaban cada vez que se pedían detalles. Los horarios, no.</p>
+        <a href="#" class="caso-link">Leer recreación</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="proceso" id="proceso">
+  <div class="section-inner">
+    <div class="proceso-head">
+      <span class="eyebrow mono">Cómo trabajamos // Proceso</span>
+      <h2 class="display reveal">Cuatro etapas.<br>Cero suposiciones.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <span class="step-num mono">01</span>
+        <span class="step-title display">Consulta inicial</span>
+        <span class="step-desc">Escuchamos el contexto y definimos qué es legalmente procedente investigar.</span>
+      </div>
+      <div class="step reveal">
+        <span class="step-num mono">02</span>
+        <span class="step-title display">Diseño del método</span>
+        <span class="step-desc">Se define un plan de observación y documentación específico para el caso.</span>
+      </div>
+      <div class="step reveal">
+        <span class="step-num mono">03</span>
+        <span class="step-title display">Ejecución discreta</span>
+        <span class="step-desc">Recolección de hechos verificables, sin exponer al cliente ni al proceso.</span>
+      </div>
+      <div class="step reveal">
+        <span class="step-num mono">04</span>
+        <span class="step-title display">Entrega de expediente</span>
+        <span class="step-desc">Informe confidencial, claro y respaldado, entregado en persona o de forma segura.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contacto" id="contacto">
+  <div class="section-inner contacto-inner">
+    <div class="contacto-left">
+      <span class="eyebrow mono">Caso privado // Contacto</span>
+      <h2 class="display reveal">Un detalle<br>cambia todo.</h2>
+      <p>Cada consulta se atiende de forma individual y confidencial. Cuéntanos lo esencial — el resto lo definimos juntos.</p>
+      <div class="contacto-note mono">Atención confidencial<br>Respuesta en 24–48h<br>Sin compromiso previo</div>
+    </div>
+    <form class="reveal" onsubmit="event.preventDefault();">
+      <div class="field">
+        <label class="mono">Nombre</label>
+        <input type="text" placeholder="Nombre completo">
+      </div>
+      <div class="field">
+        <label class="mono">Contacto</label>
+        <input type="text" placeholder="Teléfono o correo">
+      </div>
+      <div class="field">
+        <label class="mono">Mensaje</label>
+        <textarea placeholder="Describe brevemente tu situación"></textarea>
+      </div>
+      <button type="submit" class="btn">Solicitar información</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo display">LAPSUS<span style="color:var(--red-lapsus)">.</span></div>
+    <div class="footer-tagline mono">Todos cometen uno.</div>
+    <div class="footer-bottom">
+      <div class="footer-meta mono">
+        Ciudad Juárez // Chihuahua<br>
+        Atención confidencial<br>
+        © 2026 Lapsus
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacidad</a>
+        <a href="#">Términos</a>
+        <a href="#">Alcance del servicio</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursorDot');
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+    const hoverables = document.querySelectorAll('a, button, input, textarea');
+    hoverables.forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+  }
+
+  // Header scroll state
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 40) header.classList.add('scrolled');
+    else header.classList.remove('scrolled');
+  });
+
+  // Scroll reveal
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealEls = document.querySelectorAll('.reveal');
+  if (prefersReducedMotion) {
+    revealEls.forEach(el => el.classList.add('in'));
+  } else {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => observer.observe(el));
+  }
+</script>
+
+</body>
+</html>
